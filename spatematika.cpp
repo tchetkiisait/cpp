@@ -1,0 +1,110 @@
+#include <bits/stdc++.h>
+using namespace std;
+using ll = long long;
+
+const int Nmax = 5000;
+
+struct Tlong {
+	int len = 1;
+	char sign = '+';
+	int number[Nmax+1] = {0};
+};
+void readlong(Tlong &a) {
+	string S;
+	cin >> S;
+	if (S[0] == '-' || S[0] == '+') {
+		a.sign = S[0];
+		S.erase(0 , 1);
+	}
+	a.len = S.size();
+	for (int i = 0; i < a.len; ++i)
+		a.number[Nmax-a.len+i] = S[i] - '0';
+}
+void writelong(Tlong a) {
+	if (a.sign == '-')
+		cout << '-';
+	for (int i = Nmax-a.len; i < Nmax; ++i)
+		cout << a.number[i];
+}
+int comp_abs(Tlong a , Tlong b) {
+    if (a.len > b.len) return 1;
+    if (a.len < b.len) return -1;
+    int i = Nmax-a.len;
+    while (a.number[i] == b.number[i]) ++i;
+    if (i == Nmax) return 0;
+    if (a.number[i] > b.number[i]) return 1;
+    if (a.number[i] < b.number[i]) return -1;
+}
+int comp(Tlong a , Tlong b) {
+    if (a.sign != b.sign) {
+        if (a.sign == '+') return 1;
+        return -1;
+    }
+    if (a.sign == '+') return comp_abs(a ,b);
+    else return -comp_abs(a , b);
+}
+int LenLong(Tlong a) {
+	a.number[Nmax] = 777;
+	int i = 0;
+	while (!a.number[i]) ++i;
+	if (i == Nmax) return 1;
+	return Nmax-i;
+}
+Tlong add_abs(Tlong a , Tlong b) {
+	Tlong res;
+	int S , p = 0;
+	int len = max(a.len , b.len);
+	for (int i = Nmax - 1; i >= Nmax-len-1;--i) {
+		S = a.number[i] + b.number[i] + p;
+		res.number[i] = S%10;
+		p = S/10;
+	}
+	res.len = LenLong(res);
+	return res;
+}
+Tlong multy_half(Tlong&a,int b){
+    Tlong res;
+    int S,p=0;
+    for(int i=Nmax-1;i>=0;--i)
+    {
+        S=a.number[i]*b+p;
+        res.number[i]=S%10;
+        p=S/10;
+    }
+    res.len=LenLong(res);
+    return res;
+}
+Tlong multiply(Tlong a,Tlong b){
+    Tlong res;
+    res.number[Nmax-1]=1;
+    for(int i=Nmax-1;i>Nmax-b.len;--i)
+        res=add(multy_half(a,b.number[i]),res);
+    return res;
+}
+void clear(Tlong & a) {
+  a.sign = '+';
+  for (int i=Nmax-a.len; i<Nmax; ++i) a.number[i] = 0;
+  a.len = 1;
+}
+
+Tlong a , b;
+int main() {
+	int N,K;
+	cin>>N>>K;
+	Tlong temp[N];
+	for (int i=0; i<N; ++i){
+		temp[i].number[Nmax+1]=1;
+		for (int j=0; i<K; ++i){
+			clear(a);
+			readlong(a);
+			temp[i]=multiply(temp[i],a);
+		}
+
+	}
+	int max=0;
+	for (int i=1; i<N; ++i){
+		if (comp(temp[max],temp[i])==-1) max=i;
+	}
+	cout<<(max+1);
+	return 0;
+}
